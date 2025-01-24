@@ -1,6 +1,6 @@
 # Technical Decisions made
 
-Based on [the brief][./brief.md] given, the following decisions have been made:
+Based on [the brief](./brief.md) given, the following decisions have been made:
 
 ### Base Requirements
 
