@@ -19,11 +19,6 @@ export const ChartPriceIndicator = ({
   percentChange = 0,
 }: Props) => {
   const status = useSharedValue(0);
-  // const status = useDerivedValue(() => {
-  //   if (changeAmount > 0) return 1;
-  //   if (changeAmount < 0) return -1;
-  //   return 0;
-  // }, [changeAmount]);
   const opacity = useSharedValue(0);
 
   const indicatorStyle = useAnimatedStyle(() => {

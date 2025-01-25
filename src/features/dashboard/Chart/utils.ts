@@ -9,7 +9,8 @@ import * as d3 from "d3";
 import { GraphPoint } from "./types";
 
 /**
- * Creates the graph path and scales.
+ * Creates graph path with scales and path boundaries
+ * @returns Object with max, min values and Skia path
  */
 export const createGraphPath = ({
   data,
@@ -24,11 +25,12 @@ export const createGraphPath = ({
   paddingX?: number;
   paddingY?: number;
 }) => {
+  // Extract value range
   const rates = data.map((val) => val.value);
-
   const max = d3.max(rates) ?? 0;
   const min = d3.min(rates) ?? 0;
 
+  // Create scales
   const y = d3
     .scaleLinear()
     .domain([min, max])
@@ -39,6 +41,7 @@ export const createGraphPath = ({
     .domain(d3.extent(data, (d) => d.date) as [Date, Date])
     .range([paddingX, width - paddingX]);
 
+  // Generate curved line path
   const curvedLine = d3
     .line<GraphPoint>()
     .x((d) => x(d.date))
@@ -57,7 +60,8 @@ export const createGraphPath = ({
 };
 
 /**
- * Creates a straight line path
+ * Creates a straight horizontal line path
+ * @returns Skia path representing a horizontal line
  */
 export const createStraightLine = ({
   numPoints = GRAPH_WIDTH,
@@ -70,15 +74,15 @@ export const createStraightLine = ({
   height?: number;
   paddingX?: number;
 }) => {
+  // Generate evenly spaced x coordinates
   const xValues = Array.from({ length: numPoints }, (_, i) =>
     d3.interpolateNumber(paddingX, width - paddingX)(i / (numPoints - 1))
   );
 
-  const yValue = height;
-
+  // Create line data points
   const straightLineData = xValues.map((x) => ({
     x,
-    y: yValue,
+    y: height,
   }));
 
   const straightLine = d3
@@ -91,23 +95,33 @@ export const createStraightLine = ({
 };
 
 /**
- * Resamples data to a specified number of points
+ * Resample time series data to a consistent number of points
+ *
+ * @param data Original time series data points
+ * @param numPoints Desired number of output points
+ * @returns Evenly distributed data points across the time range
  */
-export const resampleData = (data: GraphPoint[], numPoints = GRAPH_WIDTH) => {
-  const timeExtent = d3.extent(data, (d) => d.date) as [Date, Date];
+export const resampleData = (
+  data: GraphPoint[],
+  numPoints = GRAPH_WIDTH
+): GraphPoint[] => {
+  // Calculate time domain
+  const [startTime, endTime] = d3.extent(data, (d) => d.date) as [Date, Date];
+  const totalTimeSpan = endTime.getTime() - startTime.getTime();
 
-  const xScale = d3.scaleTime().domain(timeExtent).range([0, 1]);
+  // Create normalized time scale
+  const xScale = d3.scaleTime().domain([startTime, endTime]).range([0, 1]);
 
-  return Array.from({ length: numPoints }, (_, i) => {
-    const t = i / (numPoints - 1);
+  // Resample data points
+  return Array.from({ length: numPoints }, (_, index) => {
+    const normalizedPosition = index / (numPoints - 1);
+    const closestIndex = d3.minIndex(data, (d) =>
+      Math.abs(xScale(d.date) - normalizedPosition)
+    );
 
-    const closestIndex = d3.minIndex(data, (d) => Math.abs(xScale(d.date) - t));
-
+    // Interpolate date and use closest point's value
     return {
-      date: new Date(
-        timeExtent[0].getTime() +
-          t * (timeExtent[1].getTime() - timeExtent[0].getTime())
-      ),
+      date: new Date(startTime.getTime() + normalizedPosition * totalTimeSpan),
       value: data[closestIndex].value,
     };
   });
