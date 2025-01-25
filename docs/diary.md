@@ -24,6 +24,7 @@ Based on [the brief](./brief.md) given, the following decisions have been made:
 6. Contextual loading and Error States
 7. Style theme / Styling system
 8. `.env` - this is good practice but overkill for this exercise.
+9. Testing - some unit tests will be included however this I will focus the least on as I don't believe it to be very important for this exercise.
 
 ### Tech
 
