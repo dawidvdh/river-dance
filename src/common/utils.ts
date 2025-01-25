@@ -1,17 +1,11 @@
-export const format = (value: number) => {
-  return (
-    "$" +
-    value
-      .toFixed(2)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
-  );
+export const formatCurrency = (value: number) => {
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(Math.abs(value));
 };
 
-export function formatPercentage(
-  value: number,
-  decimalPlaces = 1
-): string {
+export function formatPercentage(value: number, decimalPlaces = 1): string {
   const absValue = Math.abs(value);
 
   if (absValue < 1000) {

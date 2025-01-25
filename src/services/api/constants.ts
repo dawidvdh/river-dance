@@ -3,7 +3,7 @@ import { hoursToMilliseconds, minutesToMilliseconds } from "date-fns";
 
 export const PRICE_CACHE_EXPIRY = minutesToMilliseconds(60);
 
-export const CHART_CACHE_EXPIRY: { [key in TimeFrameValues]: number } = {
+export const CHART_CACHE_EXPIRY: Record<TimeFrameValues, number> = {
   DAY: minutesToMilliseconds(15),
   WEEK: minutesToMilliseconds(30),
   MONTH: hoursToMilliseconds(2),

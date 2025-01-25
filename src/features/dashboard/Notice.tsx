@@ -2,7 +2,7 @@ import { formatRelative } from "date-fns";
 import { View, Text, StyleSheet } from "react-native";
 
 type Props = {
-  lastUpdate: Date | null;
+  lastUpdate?: Date;
 };
 
 export const Notice = ({ lastUpdate }: Props) => {

@@ -26,8 +26,8 @@ export const createGraphPath = ({
 }) => {
   const rates = data.map((val) => val.value);
 
-  const max = Math.max(...rates);
-  const min = Math.min(...rates);
+  const max = d3.max(rates) ?? 0;
+  const min = d3.min(rates) ?? 0;
 
   const y = d3
     .scaleLinear()
@@ -57,9 +57,43 @@ export const createGraphPath = ({
 };
 
 /**
+ * Creates a straight line path
+ */
+export const createStraightLine = ({
+  numPoints = GRAPH_WIDTH,
+  width = GRAPH_WIDTH,
+  height = GRAPH_HEIGHT,
+  paddingX = GRAPH_PADDING_X,
+}: {
+  numPoints?: number;
+  width?: number;
+  height?: number;
+  paddingX?: number;
+}) => {
+  const xValues = Array.from({ length: numPoints }, (_, i) =>
+    d3.interpolateNumber(paddingX, width - paddingX)(i / (numPoints - 1))
+  );
+
+  const yValue = height;
+
+  const straightLineData = xValues.map((x) => ({
+    x,
+    y: yValue,
+  }));
+
+  const straightLine = d3
+    .line<{ x: number; y: number }>()
+    .x((d) => d.x)
+    .y((d) => d.y)
+    .curve(d3.curveBasis)(straightLineData);
+
+  return Skia.Path.MakeFromSVGString(straightLine || "") ?? Skia.Path.Make();
+};
+
+/**
  * Resamples data to a specified number of points
  */
-export const resampleData = (data: GraphPoint[], numPoints: number) => {
+export const resampleData = (data: GraphPoint[], numPoints = GRAPH_WIDTH) => {
   const timeExtent = d3.extent(data, (d) => d.date) as [Date, Date];
 
   const xScale = d3.scaleTime().domain(timeExtent).range([0, 1]);
@@ -77,28 +111,4 @@ export const resampleData = (data: GraphPoint[], numPoints: number) => {
       value: data[closestIndex].value,
     };
   });
-};
-
-/**
- * Creates a straight line path
- */
-export const createStraightLine = ({
-  height = GRAPH_HEIGHT,
-  width = GRAPH_WIDTH,
-}: {
-  height?: number;
-  width?: number;
-}) => {
-  const path = Skia.Path.Make();
-  path.moveTo(0, height / 2);
-
-  const controlPointHeight = height / 10; // Adjust for more/less curve
-
-  for (let i = 0; i < width - 1; i += 1) {
-    const x = i;
-    const y = height / 2 + Math.sin(i * 0.05) * controlPointHeight;
-    path.lineTo(x, y);
-  }
-
-  return path;
 };

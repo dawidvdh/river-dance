@@ -22,6 +22,7 @@ export const SegmentedControl = ({
             onValueChange(value);
           }}
           style={styles.buttonContainer}
+          disabled={value === selectedValue}
         >
           <View
             style={[

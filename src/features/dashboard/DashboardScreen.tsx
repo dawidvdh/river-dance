@@ -2,52 +2,52 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Chart } from "./Chart/Chart";
 import {
   useGetBitcoinPriceQuery,
-  useRiverChartHistory,
-} from "../../services/api";
+  useGetBitcoinChartQuery,
+} from "../../services/api/api";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
-import { format } from "../../common/utils";
-import { SegmentedControl } from "./SegmentedButtons";
-import { ChartLabel } from "./Chart/Label";
+import { formatCurrency } from "../../common/utils";
+import { SegmentedControl } from "../../common/components/SegmentedButtons";
+import { ChartLabel } from "./Chart/ChartLabel";
 import { Notice } from "./Notice";
-import { TimeFrameValues } from "../../services/types";
-import { ErrorScreen } from "./ErrorScreen";
-import { TIME_FRAMES } from "@/src/services/constants";
+import { TimeFrameValues } from "../../services/api/types";
+import { ErrorScreen } from "../../common/components/ErrorScreen";
+import { TIME_FRAMES } from "@/src/services/api/constants";
 
 export const HomeScreen = () => {
   const [timeFrame, setTimeFrame] = useState<TimeFrameValues>("MONTH");
-  const { data: priceData, error: priceError } = useGetBitcoinPriceQuery();
-  const { data, error } = useRiverChartHistory({
+  const {
+    data: priceData,
+    error: priceError,
+    refetch: refetchPrice,
+  } = useGetBitcoinPriceQuery();
+  const { data, error, refetch } = useGetBitcoinChartQuery({
     timeFrame,
   });
 
   if (error || priceError) {
-    return <ErrorScreen />;
+    return (
+      <ErrorScreen
+        onRetry={() => {
+          refetchPrice();
+          refetch();
+        }}
+      />
+    );
   }
-
-  const { price } = priceData ?? { price: 0, date: new Date() };
-
-  const { chart, meta } = data ?? {
-    chart: [
-      { date: new Date(1993), value: 0 },
-      { date: new Date(), value: 0 },
-    ],
-    meta: { absoluteChange: 0, percentageChange: 0, lastUpdate: null },
-    currentPrice: 0,
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ChartLabel
-        absoluteChange={meta.absoluteChange}
+        absoluteChange={data?.meta.absoluteChange}
         headerText="Bitcoin"
-        subText={format(price)}
-        percentChange={meta.percentageChange}
+        subText={priceData?.price ? formatCurrency(priceData.price) : null}
+        percentChange={data?.meta.percentageChange}
       />
 
-      <Chart data={chart} />
+      <Chart data={data?.chart} />
 
-      <Notice lastUpdate={meta.lastUpdate} />
+      <Notice lastUpdate={data?.meta.lastUpdate} />
 
       <SegmentedControl
         data={TIME_FRAMES}

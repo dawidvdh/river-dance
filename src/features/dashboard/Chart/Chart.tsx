@@ -16,7 +16,7 @@ import { useEffect, useMemo } from "react";
 import { createGraphPath, createStraightLine, resampleData } from "./utils";
 
 type Props = {
-  data: GraphPoint[];
+  data?: GraphPoint[];
 };
 
 export const Chart = ({ data }: Props) => {
@@ -24,7 +24,10 @@ export const Chart = ({ data }: Props) => {
   const transition = useSharedValue(0);
 
   const straightLine = useMemo(
-    () => createStraightLine({ height: GRAPH_HEIGHT, width: GRAPH_WIDTH }),
+    () =>
+      createStraightLine({
+        numPoints: GRAPH_WIDTH,
+      }),
     []
   );
 
@@ -38,7 +41,7 @@ export const Chart = ({ data }: Props) => {
   useEffect(() => {
     if (!data?.length) return;
 
-    const resampled = resampleData(data, GRAPH_WIDTH);
+    const resampled = resampleData(data);
     const { path } = createGraphPath({
       data: resampled,
     });
@@ -62,7 +65,7 @@ export const Chart = ({ data }: Props) => {
 
   return (
     <Canvas style={{ width: GRAPH_WIDTH, height: GRAPH_HEIGHT }}>
-      <Path path={path} style="stroke" strokeWidth={2} color="pink">
+      <Path path={path} style="stroke" strokeWidth={2}>
         <LinearGradient
           start={vec(0, 0)}
           end={vec(GRAPH_WIDTH, 0)}

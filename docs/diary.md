@@ -22,6 +22,8 @@ Based on [the brief](./brief.md) given, the following decisions have been made:
 4. API health checks / warnings
 5. Analytics and Monitoring
 6. Contextual loading and Error States
+7. Style theme / Styling system
+8. `.env` - this is good practice but overkill for this exercise.
 
 ### Tech
 
@@ -41,12 +43,10 @@ Ideally will keep this as bare as possible.
 
 ### Conclusion
 
-There is a lot more that can be done here and cleaned up however I hope that this is enough for a first pass, some assumptions about the API were made which I would typically prefer concrete information on but given the information at hand and the time to complete this task I decided to dangerously assume some things.
+I hope that this is enough for the assessment, some assumptions about the API were made which I would typically prefer concrete information on but given the information at hand and the time to complete this task I decided to dangerously assume some things.
 
 There are places were I feel optimizations could be made in how data is processed and also how its transformed and resampled for the graph but in the interest of time this solution should be good enough, the organization of the project could also be somewhat better but I feel that the structure is good enough for a small project like this.
 
 [`react-native-graph`](https://github.com/margelo/react-native-graph/tree/main) - this could have been used and may very well be the correct solution for a production project, however I was really curious about how to implement this myself and this seemed like a good opportunity to do so.
-
-Lastly its definitely missing some placeholder loading / error states.
 
 Other than all of that, this was fun and probably something I will expand on to implement touch panning and such.

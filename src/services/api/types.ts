@@ -1,5 +1,4 @@
 export type CurrentPrice = {
-  id: number;
   mid: string;
   datetime: string;
 };

@@ -1,11 +1,17 @@
 import { View, Text, StyleSheet } from "react-native";
-import { format, formatPercentage } from "../../../common/utils";
+import Animated, {
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+import { useEffect } from "react";
+import { ChartPriceIndicator } from "./ChartPriceIndicator";
 
 type Props = {
   headerText: string;
-  subText: string;
-  absoluteChange: number;
-  percentChange: number;
+  subText?: string | null;
+  absoluteChange?: number;
+  percentChange?: number;
   isLoading?: boolean;
 };
 
@@ -15,20 +21,25 @@ export const ChartLabel = ({
   absoluteChange,
   percentChange,
 }: Props) => {
-  const formattedPercentChange = formatPercentage(percentChange);
-  const positiveChange = absoluteChange >= 0;
+  const priceOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    priceOpacity.value = subText
+      ? withTiming(1, { duration: 300 })
+      : withRepeat(withTiming(1, { duration: 1000 }), -1, true);
+  }, [subText]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{headerText}</Text>
       <View>
-        <Text style={styles.price}>{subText}</Text>
-        <Text
-          style={[styles.changeText, positiveChange && styles.changeNegative]}
-        >
-          {positiveChange ? "\u25B2 " : "\u25BC "}
-          {format(absoluteChange ?? 0)} ({formattedPercentChange})
-        </Text>
+        <Animated.Text style={[styles.price, { opacity: priceOpacity }]}>
+          {subText}
+        </Animated.Text>
+        <ChartPriceIndicator
+          changeAmount={absoluteChange}
+          percentChange={percentChange}
+        />
       </View>
     </View>
   );
@@ -44,14 +55,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
-  },
-  changeText: {
-    fontSize: 16,
-    fontWeight: "light",
-    color: "#F0616D",
-  },
-  changeNegative: {
-    color: "#27AD75",
   },
   updatedAtText: {
     fontSize: 10,

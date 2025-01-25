@@ -1,4 +1,4 @@
-import { selectMetaData, transformChartData } from "./tranformers";
+import { selectMetaData, transformChartData } from "../tranformers";
 
 describe("Data utilities", () => {
   describe("selectMetaData", () => {
